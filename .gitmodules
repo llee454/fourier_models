@@ -1,0 +1,3 @@
+[submodule "ocaml-gsl-demo"]
+	path = ocaml-gsl-demo
+	url = https://github.com/llee454/ocaml-gsl-demo.git

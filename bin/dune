@@ -1,0 +1,13 @@
+(executable
+ (public_name ocaml-gsl-demo)
+ (name main)
+ (libraries
+    core
+    core_kernel
+    lwt
+    lwt.unix
+    gsl
+  )
+  (preprocess (pps
+    ppx_jane))
+)

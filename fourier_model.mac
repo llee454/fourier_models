@@ -1,0 +1,167 @@
+load (distrib)$
+load (eigen)$
+
+ratprint: false$
+trigexpand: true$
+
+/*
+  Represents a fourier series component for the domain [-4, 4].
+*/
+fcos (n, x) := cos (2*%pi*x*n/2)$
+
+fsin (n, x) := sin (2*%pi*x*n/2)$
+
+prod (a, b, f, g) := quad_qags (f (x) * g (x), x, a, b)$
+
+proj (a, b, f, g) := prod (a, b, f, g) / prod (a, b, g, g)$
+
+prod2 (x0, x1, y0, y1, f, g) :=
+  quad_qags (
+    buildq ([x],
+      quad_qags (
+        f (x, y) * g (x, y),
+        y, y0, y1)[1]),
+    x, x0, x1)[1]$
+
+proj2 (x0, x1, y0, y1, f, g) :=
+  prod2 (x0, x1, y0, y1, f, g) / 
+  prod2 (x0, x1, y0, y1, f, f)$
+
+/*
+  Approximates the standard normal distribution on the range [-4, 4].
+*/
+pdf_norm_approx (x) :=
+  block ([k0, k1, k2, k3],
+    k0: 0.3133,
+    k1: 0.4604,
+    k2: 0.1825,
+    k3: 0.0391,
+    (k0*fcos (0, x) +
+     k1*fcos (1, x) +
+     k2*fcos (2, x) +
+     k3*fcos (3, x))/sqrt (2*%pi)
+  )$
+
+pdf_inv (a, b) := pdf_normal (a / b, 0, 1)$
+
+pdf_inv_approx (delta, x0, x1) :=
+  block ([fcos, fsin, ks],
+    fcos (k, x) := cos (k * 2 * %pi * x / delta),
+    fsin (k, x) := sin (k * 2 * %pi * x / delta),
+    /* ks: [0.21233036, 0.12669596, 0.00000000, -0.14305578, -0.00000005, 0.02150354, -0.00000010, 0.00000000, 0.00000000, 0.01762066, 0.00000000, -0.02917687, 0.00000000, -0.05086599, -0.00000000, 0.00000000, 0.00000000, 0.04794781, -0.00000010, 0.00000000, 0.00000000, 0.01477626, 0.00000000, 0.00000000, 0.00000000, 0.01476792, 0.00000000, -0.01288101, -0.00000000, -0.03057178, -0.00000000, 0.00000000, 0.00000000, 0.01626153, 0.00000001, 0.00000000, 0.00000000, -0.00906078, -0.00000000, 0.00000000, 0.00000000, 0.01319165, 0.00000000, 0.00000000, 0.00000000, 0.00727285, -0.00000000, 0.00000000, 0.00000000], */
+    ks[1] +
+    ks[2] * fcos (1, x0) +
+    ks[3] * fsin (1, x0) +
+    ks[4] * fcos (1, x1) +
+    ks[5] * fsin (1, x1) +
+    ks[6] * fcos (1, x0) * fcos (1, x1) +
+    ks[7] * fcos (1, x0) * fsin (1, x1) +
+    ks[8] * fsin (1, x0) * fcos (1, x1) +
+    ks[9] * fsin (1, x0) * fsin (1, x1) +
+    ks[10] * fcos (2, x0) +
+    ks[11] * fsin (2, x0) +
+    ks[12] * fcos (2, x1) +
+    ks[13] * fsin (2, x1) +
+    ks[14] * fcos (1, x0) * fcos (2, x1) +
+    ks[15] * fcos (1, x0) * fsin (2, x1) +
+    ks[16] * fsin (1, x0) * fcos (2, x1) +
+    ks[17] * fsin (1, x0) * fsin (2, x1) +
+    ks[18] * fcos (2, x0) * fcos (1, x1) +
+    ks[19] * fcos (2, x0) * fsin (1, x1) +
+    ks[20] * fsin (2, x0) * fcos (1, x1) +
+    ks[21] * fsin (2, x0) * fsin (1, x1) +
+    ks[22] * fcos (2, x0) * fcos (2, x1) +
+    ks[23] * fcos (2, x0) * fsin (2, x1) +
+    ks[24] * fsin (2, x0) * fcos (2, x1) +
+    ks[25] * fsin (2, x0) * fsin (2, x1) +
+    ks[26] * fcos (3, x0) +
+    ks[27] * fsin (3, x0) +
+    ks[28] * fcos (3, x1) +
+    ks[29] * fsin (3, x1) +
+    ks[30] * fcos (1, x0) * fcos (3, x1) +
+    ks[31] * fcos (1, x0) * fsin (3, x1) +
+    ks[32] * fsin (1, x0) * fcos (3, x1) +
+    ks[33] * fsin (1, x0) * fsin (3, x1) +
+    ks[38] * fcos (3, x0) * fcos (1, x1) +
+    ks[39] * fcos (3, x0) * fsin (1, x1) +
+    ks[40] * fsin (3, x0) * fcos (1, x1) +
+    ks[41] * fsin (3, x0) * fsin (1, x1) +
+    ks[34] * fcos (2, x0) * fcos (3, x1) +
+    ks[35] * fcos (2, x0) * fsin (3, x1) +
+    ks[36] * fsin (2, x0) * fcos (3, x1) +
+    ks[37] * fsin (2, x0) * fsin (3, x1) +
+    ks[42] * fcos (3, x0) * fcos (2, x1) +
+    ks[43] * fcos (3, x0) * fsin (2, x1) +
+    ks[44] * fsin (3, x0) * fcos (2, x1) +
+    ks[45] * fsin (3, x0) * fsin (2, x1) +
+    ks[46] * fcos (3, x0) * fcos (3, x1) +
+    ks[47] * fcos (3, x0) * fsin (3, x1) +
+    ks[48] * fsin (3, x0) * fcos (3, x1) +
+    ks[49] * fsin (3, x0) * fsin (3, x1)
+  )$
+  
+
+plot_pdf_inv_approx () :=
+  draw3d (
+    explicit (pdf_inv (x, y), x, -1, 1, y, -1, 1),
+    color = green,
+    explicit (pdf_inv_approx (2, x, y), x, -1, 1, y, -1, 1),
+    xlabel = "x",
+    ylabel = "y",
+    grid   = true
+  );
+
+f (x) :=
+  factor (
+    subst (0, fsin (7, x),
+    subst (0, fsin (6, x),
+    subst (0, fcos (6, x),
+    subst (0, fsin (5, x),
+    subst (0, fcos (5, x),
+    subst (0, fsin (4, x),
+    subst (0, fcos (4, x),
+    subst (y^3, fsin (3, x),
+    subst (z^3, fcos (3, x),
+    subst (y^2, fsin (2, x),
+    subst (z^2, fcos (2, x),
+    subst (y^1, fsin (1, x),
+    subst (z^1, fcos (1, x),
+    expand (
+      integrate (
+        trigreduce (
+          (a0 +
+           a1*fcos (1, x0) + a2*fsin (1, x0) +
+           a3*fcos (2, x0) + a4*fsin (2, x0) +
+           a5*fcos (3, x0) + a6*fsin (4, x0))
+          * pdf_inv_approx (2, x, x0)),
+        x0
+))))))))))))))));
+
+/*
+F: matrix (
+  [6266, 4604, 0, 1825, 0, 391, 0],
+  [9208, 8091, 0, 4995, 0, 1825, 0],
+  [0, 0, 4441, 0, 4213, 0, 391],
+  [3650, 4995, 0, 6266, 0, 4604, 0],
+  [0, 0, 4213, 0, 6266, 0, 1825],
+  [782, 1825, 0, 4604, 0, 6266, 0],
+  [0, 0, 1825, 0, 4604, 0, 4604]
+)/(625 * 2^(11/2) * sqrt (%pi))$
+  
+pdf0: columnvector ([0.3133, 0.4604, 0, 0.1825, 0, 0.0391, 0])$
+
+xvec (x) := [
+  1,
+  fcos (1, x), fsin (1, x),
+  fcos (2, x), fsin (2, x),
+  fcos (3, x), fsin (3, x)
+]/sqrt(2*%pi)$
+
+
+norm_prod (x) :=
+  dotproduct (F . pdf0, columnvector (xvec (x)))$
+
+norm_prod_ref (x) :=
+    pdf_normal (x, 0, 1) *
+    pdf_normal (x, 0, 1)$
+*/

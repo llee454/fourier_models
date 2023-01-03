@@ -1,0 +1,47 @@
+opam-version: "2.0"
+maintainer: "Larry D. Lee Jr."
+authors: [
+  "Larry D. Lee Jr."
+]
+synopsis: "Experiment"
+description: """
+Experiment
+"""
+license: "NONE"
+tags: []
+homepage: "https://github.com/asemio/spotlight-tps-housing-aic1"
+doc: "https://github.com/asemio/spotlight-tps-housing-aic1"
+bug-reports: "https://github.com/asemio/spotlight-tps-housing-aic1/issues"
+pin-depends: [
+ ["ADB.1.7.0" "git+https://github.com/asemio/ADB.git#v1.7.0"]
+ ["cluster.1.0.0" "git+https://github.com/llee454/cluster.git#main"]
+ ["ppx_profile.1.0.0" "git+https://github.com/llee454/ppx_profile.git#main"]
+]
+depends: [
+  "ocaml" { = "4.14.0" }
+  "ocaml-option-flambda"
+  "dune" { >= "2.6.0" }
+  "ocaml-lsp-server"
+  "ocamlformat" { = "0.21.0" }
+  "ppx_jane"
+  "core"
+  "lwt"
+  "lwt_ppx"
+  "csv-lwt"
+  "SZXX" { = "2.0.0" }
+  "conf-libev"
+  "ADB" { = "1.7.0" }
+
+  "uuidm"
+  "re" { >= "1.9.0" & < "2.0.0" }
+  "yojson" { >= "1.7.0" & < "2.0.0" }
+  "ppx_deriving_yojson" { >= "3.5.2" }
+  "pg_query" { >= "0.9.6" }
+  "ppx_rapper" { >= "2.0.0" & < "3.0.0" }
+
+  "plplot"
+  "alcotest"
+  "alcotest-lwt"
+  "cluster" { = "1.0.0"}
+  "ppx_profile" { = "1.0.0" }
+]
