@@ -1,5 +1,4 @@
 (executable
- (public_name ocaml-gsl-demo)
  (name main)
  (libraries
     core
